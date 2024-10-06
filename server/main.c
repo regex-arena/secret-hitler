@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Connection
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -30,7 +32,7 @@ int main(int argc, char** argv) {
 
     if (getaddrinfo(NULL, "4848", &hints, &result) != 0) {
         fprintf(stderr, "Unable to get address info: %s", strerror(errno));
-        return 1;
+        exit(EXIT_FAILURE);
     }
     for (rp = result; rp != NULL; rp = rp->ai_next) {
         sock = socket(AF_INET, SOCK_STREAM, 0);

@@ -1,4 +1,4 @@
-[Plan:]
+# Plan
  - S: Bind to port
  - C: Create Connection
  - S: Establish connections

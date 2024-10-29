@@ -15,12 +15,25 @@
 #include <string.h>
 #include <errno.h>
 
+// Game loop
+#include "game.h"
+
 int main(int argc, char** argv) {
     // Initilises hints to 0
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
     struct addrinfo *result, *rp;
     int sock;
+
+    if (argc != 3) {
+        fprintf(stderr, "Invalid argument - Expected form 'command port lobbySize'");
+        exit(EXIT_FAILURE);
+    }
+    int loby_size = atoi(argv[2]);
+    if (loby_size > 10 || loby_size < 5) {
+        fprintf(stderr, "Invalid loby size - expected between 5 and 10");
+        exit(EXIT_FAILURE);
+    }
 
     hints.ai_family = AF_UNSPEC; // Can use both IPv4 and IPv6
     hints.ai_socktype = SOCK_STREAM; // Stream prefered over DGRAM due to reliability
@@ -30,7 +43,7 @@ int main(int argc, char** argv) {
     hints.ai_addr = NULL;
     hints.ai_next = NULL;
 
-    if (getaddrinfo(NULL, "4848", &hints, &result) != 0) {
+    if (getaddrinfo(NULL, argv[1], &hints, &result) != 0) {
         fprintf(stderr, "Unable to get address info: %s", strerror(errno));
         exit(EXIT_FAILURE);
     }
@@ -48,5 +61,6 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
+    loop(sock, loby_size);
     return 0;
 }

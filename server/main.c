@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     int sock;
 
     if (argc != 3) {
-        fprintf(stderr, "Invalid argument - Expected form 'command port lobbySize'");
+        fprintf(stderr, "Invalid argument - Expected form 'command port lobySize'");
         exit(EXIT_FAILURE);
     }
     int loby_size = atoi(argv[2]);
@@ -61,6 +61,8 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
+    listen(sock, loby_size);
     loop(sock, loby_size);
+    shutdown(sock, SHUT_RDWR);
     return 0;
 }

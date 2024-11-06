@@ -1,8 +1,12 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Connection
 #include <sys/socket.h>
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <stdio.h>
 
 struct GameState {
     // Deck contains 17 cards so uint16_t has too few bits
@@ -18,20 +22,29 @@ struct GameState {
 void loop(int sock, int lobby_size) {
     // Initalisation
     // Conect clients
-    int *clients = malloc(lobby_size * sizeof(int));
+    struct sockaddr *clientSFD = malloc(lobby_size * sizeof(struct sockaddr));
+    int *clients = malloc(sizeof(int)*lobby_size);
+    
     int i = 0;
     while (i < lobby_size) {
-        listen(sock, lobby_size);
-        accept(sock, , );
-        i++;
+        socklen_t clientlen = sizeof(clientSFD[i]);
+        clients[i] = accept(sock, &clientSFD[i], &clientlen);
+        if (clients[i] == -1) {
+            fprintf(stderr, "Failed to accept connection: error %d\n", errno);
+        } else {
+            i++;
+        }
     }
     
     // Initalise game state
 
     // Loop
-    for (;;) {
-    }
+    //for (;;) {
+    //}
     
     // Cleanup
+    for (int i = 0; i < lobby_size; i++)
+        close(clients[i]);
     free(clients); 
+    free(clientSFD);
 }

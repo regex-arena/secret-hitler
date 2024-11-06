@@ -2,7 +2,7 @@
 
 CC=gcc
 
-server: server/main.c
+server: server/main.c server/game.h server/game.c
 	$(CC) -o bin/server server/main.c
 
 client: client/main.c

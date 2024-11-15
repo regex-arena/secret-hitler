@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     }
 
     hints.ai_family = AF_UNSPEC; // Can use both IPv4 and IPv6
-    hints.ai_socktype = SOCK_STREAM; // Stream prefered over DGRAM due to reliability
+    hints.ai_socktype = SOCK_DGRAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = 0;
     hints.ai_canonname = NULL;
@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     for (rp = result; rp != NULL; rp = rp->ai_next) {
-        sock = socket(AF_INET, SOCK_STREAM, 0);
+        sock = socket(AF_INET, SOCK_DGRAM, 0);
         if (sock == -1)
             continue;
         if (bind(sock, rp->ai_addr, rp->ai_addrlen) == 0)

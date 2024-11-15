@@ -2,11 +2,15 @@
 
 CC=gcc
 
-server: server/main.c server/game.h server/game.c
-	$(CC) -o bin/server server/main.c
+SERVER_LINK=
 
-client: client/main.c
-	$(CC) -o bin/client client/main.c
+CLIENT_LINK=-lform -lncurses
+
+server: server/main.c server/game.h server/game.c
+	$(CC) $(SERVER_LINK) -o bin/server server/main.c
+
+client: client/main.c client/game.h client/game.c
+	$(CC) $(CLIENT_LINK) -o bin/client client/main.c
 
 clean: ./bin/
 	rm ./bin/*

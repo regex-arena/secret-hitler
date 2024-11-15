@@ -3,10 +3,12 @@
 // Connection
 #include <sys/socket.h>
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <stdio.h>
+
+const int NAME_LENGHT=8;
 
 struct GameState {
     // Deck contains 17 cards so uint16_t has too few bits
@@ -24,6 +26,7 @@ void loop(int sock, int lobby_size) {
     // Conect clients
     struct sockaddr *clientSFD = malloc(lobby_size * sizeof(struct sockaddr));
     int *clients = malloc(sizeof(int)*lobby_size);
+    char *names = malloc(lobby_size*(NAME_LENGHT+1)*sizeof(char));
     
     int i = 0;
     while (i < lobby_size) {
@@ -32,6 +35,8 @@ void loop(int sock, int lobby_size) {
         if (clients[i] == -1) {
             fprintf(stderr, "Failed to accept connection: error %d\n", errno);
         } else {
+            recv(clients[i], names+i*sizeof(char)*(NAME_LENGHT+1), (NAME_LENGHT+1)*sizeof(char), 0);
+
             i++;
         }
     }
@@ -44,7 +49,8 @@ void loop(int sock, int lobby_size) {
     
     // Cleanup
     for (int i = 0; i < lobby_size; i++)
-        close(clients[i]);
-    free(clients); 
+        shutdown(clients[i], SHUT_RDWR);
+    free(clients);
     free(clientSFD);
+    free(names);
 }

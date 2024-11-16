@@ -1,6 +1,15 @@
+# Finished
+ - Initilising sockets
+ - Receve and send names between clients
+
 # Plan
- - C: Create Connection
- - S: Start Game
+ - Start Game
+    * Create initial state
     * Send initial state relevent to clients
- - C: Recive State
+    * Clients receve state
  - Game loop
+ - Ask for replay
+
+# Improvements:
+ - Prevent duplicate names
+ - improve interface for entering name

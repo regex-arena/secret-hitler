@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     }
     
     hints.ai_family = AF_UNSPEC; // Can use both IPv4 and IPv6
-    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = 0;
     hints.ai_protocol = 0;
 

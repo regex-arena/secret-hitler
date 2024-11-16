@@ -33,9 +33,26 @@ void loop(int sock, int lobby_size) {
         socklen_t clientlen = sizeof(clientSFD[i]);
         clients[i] = accept(sock, &clientSFD[i], &clientlen);
         if (clients[i] == -1) {
-            fprintf(stderr, "Failed to accept connection: error %d\n", errno);
+            fprintf(stderr,
+                    "Failed to accept connection number %i: error %d\n",
+                    i, errno);
         } else {
-            recv(clients[i], names+i*sizeof(char)*(NAME_LENGHT+1), (NAME_LENGHT+1)*sizeof(char), 0);
+            recv(clients[i],
+                 names+i*sizeof(char)*(NAME_LENGHT+1),
+                 (NAME_LENGHT+1)*sizeof(char),
+                 0);
+            send(clients[i], &lobby_size, sizeof(int), 0);
+            send(clients[i], &i, sizeof(int), 0);
+            for (int j = 0; j < i; j++) {
+                send(clients[j],
+                     names+i*(NAME_LENGHT+1),
+                     sizeof(char)*(NAME_LENGHT+1),
+                     0);
+                send(clients[i],
+                     names+j*(NAME_LENGHT+1),
+                     sizeof(char)*(NAME_LENGHT+1),
+                     0);
+            }
 
             i++;
         }

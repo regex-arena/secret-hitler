@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GCC-BY-NC-SA-4.0
 
 // Connection
 #include <sys/socket.h>
@@ -21,53 +21,26 @@ struct GameState {
     char lpolicy;
 };
 
-void loop(int sock, int lobby_size) {
-    // Initalisation
-    // Conect clients
-    struct sockaddr *clientSFD = malloc(lobby_size * sizeof(struct sockaddr));
-    int *clients = malloc(sizeof(int)*lobby_size);
-    char *names = malloc(lobby_size*(NAME_LENGHT+1)*sizeof(char));
-    
-    int i = 0;
-    while (i < lobby_size) {
-        socklen_t clientlen = sizeof(clientSFD[i]);
-        clients[i] = accept(sock, &clientSFD[i], &clientlen);
-        if (clients[i] == -1) {
-            fprintf(stderr,
-                    "Failed to accept connection number %i: error %d\n",
-                    i, errno);
-        } else {
-            recv(clients[i],
-                 names+i*sizeof(char)*(NAME_LENGHT+1),
-                 (NAME_LENGHT+1)*sizeof(char),
-                 0);
-            send(clients[i], &lobby_size, sizeof(int), 0);
-            send(clients[i], &i, sizeof(int), 0);
-            for (int j = 0; j < i; j++) {
-                send(clients[j],
-                     names+i*(NAME_LENGHT+1),
-                     sizeof(char)*(NAME_LENGHT+1),
-                     0);
-                send(clients[i],
-                     names+j*(NAME_LENGHT+1),
-                     sizeof(char)*(NAME_LENGHT+1),
-                     0);
-            }
-
-            i++;
-        }
+uint32_t popdeck() {
+    uint32_t deck = 0;
+    int deckseed[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    // Fisher-Yates shuffle
+    for (int i = 0; i < 15; i++) {
+        int j = rand()%(i+1);
+        int jval = deckseed[j];
+        deckseed[j] = deckseed[i];
+        deckseed[i] = jval;
     }
-    
-    // Initalise game state
+    for (int i = 0; i < 11; i++) {
+        deck = deck | 1<<(deckseed[i]);
+    }
+    printf("%b\n", deck);
 
-    // Loop
-    //for (;;) {
-    //}
-    
-    // Cleanup
-    for (int i = 0; i < lobby_size; i++)
-        shutdown(clients[i], SHUT_RDWR);
-    free(clients);
-    free(clientSFD);
-    free(names);
+    return deck;
+}
+
+void loop(int *clients, int lobby_size) {
+    struct GameState state;
+    state.pdeck = popdeck();
+
 }

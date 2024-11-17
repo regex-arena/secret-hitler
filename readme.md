@@ -1,3 +1,5 @@
+Game mechanics derived from Secret Hitler, found on https://www.secrethitler.com/
+
 # Finished
  - Initilising sockets
  - Receve and send names between clients

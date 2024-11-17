@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GCC-BY-NC-SA-4.0
 
 // Connection
 #include <sys/socket.h>
@@ -8,6 +8,7 @@
 #include <netdb.h>
 
 #include <sys/types.h>
+#include <time.h>
 #include <stdlib.h>
 
 // IO
@@ -19,6 +20,8 @@
 #include "game.h"
 
 int main(int argc, char** argv) {
+    srand(time(NULL));
+
     // Initilises hints to 0
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -35,6 +38,7 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
+    // Connection Details
     hints.ai_family = AF_UNSPEC; // Can use both IPv4 and IPv6
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
@@ -69,6 +73,7 @@ int main(int argc, char** argv) {
     int *clients = malloc(sizeof(int)*lobby_size);
     char *names = malloc(lobby_size*(NAME_LENGHT+1)*sizeof(char));
     
+    // Connect to clients
     int i = 0;
     while (i < lobby_size) {
         socklen_t clientlen = sizeof(clientSFD[i]);
@@ -99,6 +104,7 @@ int main(int argc, char** argv) {
         }
     }
     
+    loop(clients, lobby_size);
     // Initalise game state
 
 

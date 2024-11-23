@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GCC-BY-NC-SA-4.0
+// SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 #include <curses.h>
 #include <signal.h>
@@ -67,12 +67,14 @@ void render(int sock) {
     refresh();
     erase();
 
+    char role;
+    recv(sock, &role, sizeof(char), 0);
+
 
 //    for (;;) {
 //
 //        refresh();
 //    }
-    sleep(50);
     free(names);
     free(name);
     endwin();

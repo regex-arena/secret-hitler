@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GCC-BY-NC-SA-4.0
+// SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 // Connect
 #include <netdb.h>

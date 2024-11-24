@@ -71,7 +71,8 @@ void loop(int *clients, int lobby_size) {
     free(players);
 
     for (int i = (facists == 2 ? 0 : 1); i < facists; i++) {
-        send(state.facist[i], state.facist, facists*sizeof(char), 0);
+        send(clients[state.facist[i]], state.facist, facists*sizeof(char), 0);
+        send(clients[state.facist[i]], &state.hitler, sizeof(char), 0);
     }
 
     state.fpolicy = 0;

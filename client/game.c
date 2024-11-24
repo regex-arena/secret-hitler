@@ -10,6 +10,14 @@
 const int NAME_LENGHT=8;
 
 static void finish();
+void drawh(char *names,
+           char *facists,
+           char players,
+           char hitler,
+           char presedent,
+           char chancelor,
+           WINDOW *window);
+
 
 void render(int sock) {
 
@@ -70,14 +78,71 @@ void render(int sock) {
     char role;
     recv(sock, &role, sizeof(char), 0);
 
+    char facists[4] = { 11, 11, 11, 11 };
+    char nfacists = (lobby_size - 1) / 2;
+    char hitler = 11;
+    if (role == 1 || (role == 2 && lobby_size < 7)) {
+        recv(sock, facists, nfacists * sizeof(char), 0);
+        recv(sock, &hitler, sizeof(char), 0);
+    }
 
-//    for (;;) {
-//
-//        refresh();
-//    }
+    char president = 11;
+    char chanselor = 11;
+
+    drawh(names, facists, index, hitler, president, chanselor, main_screen);
+
+
+    //    for (;;) {
+    //
+    //        refresh();
+    //    }
     free(names);
     free(name);
     endwin();
+}
+
+int inarray(char *array, char length, char value) {
+    for (int i = 0; i < length; i++) {
+        if (array[i] == value) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void drawh(char *names,
+           char *facists,
+           char players,
+           char hitler,
+           char presedent,
+           char chancelor,
+           WINDOW *window) {
+    move(1, 0);
+    for (int i = 0; i < getmaxx(window); i++) {
+        printw("─");
+    }
+
+    move(0, 0);
+    for (int i = 0; i < players; i++) {
+        printw(" ");
+        if (i == hitler) {
+            printw("(H) ");
+        } else if (inarray(facists, 4, i)) {
+            printw("(F) ");
+        }
+
+        if (i == presedent) {
+            printw("(P) ");
+        } else if (i == chancelor) {
+            printw("(C) ");
+        }
+
+        printw("%s ", names[i]);
+        if (i != players - 1) {
+            printw("│");
+
+        }
+    }
 }
 
 void finish() {

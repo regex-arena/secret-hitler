@@ -3,10 +3,8 @@
 // Connection
 #include <sys/socket.h>
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <errno.h>
 
 const int NAME_LENGHT=8;
 
@@ -31,10 +29,8 @@ uint32_t populatedeck() {
         deckseed[i] = jval;
     }
     for (int i = 0; i < 11; i++) {
-        printf("%d\n", deckseed[i]);
         deck = deck | 1<<(deckseed[i]);
     }
-    printf("%17b\n", deck);
 
     return deck;
 }

@@ -96,6 +96,7 @@ void render(int sock) {
     //
     //        refresh();
     //    }
+    sleep(5);
     free(names);
     free(name);
     endwin();
@@ -119,7 +120,7 @@ void drawh(char *names,
            WINDOW *window) {
     move(1, 0);
     for (int i = 0; i < getmaxx(window); i++) {
-        printw("─");
+        printw("-");
     }
 
     move(0, 0);
@@ -137,12 +138,13 @@ void drawh(char *names,
             printw("(C) ");
         }
 
-        printw("%s ", names[i]);
+        printw("%s ", names+i*(NAME_LENGHT+1));
         if (i != players - 1) {
-            printw("│");
+            printw("|");
 
         }
     }
+    refresh();
 }
 
 void finish() {

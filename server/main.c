@@ -105,13 +105,7 @@ int main(int argc, char** argv) {
     }
     
     loop(clients, lobby_size);
-    // Initalise game state
 
-
-    // Loop
-    //for (;;) {
-    //}
-    
     // Cleanup
     for (int i = 0; i < lobby_size; i++)
         shutdown(clients[i], SHUT_RDWR);

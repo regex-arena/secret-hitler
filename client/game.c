@@ -76,7 +76,10 @@ void render(int sock) {
     erase();
 
     char role;
+    char president = 11;
+    char chanselor = 11;
     recv(sock, &role, sizeof(char), 0);
+    recv(sock, &chanselor, sizeof(char), 0);
 
     char facists[4] = { 11, 11, 11, 11 };
     char nfacists = (lobby_size - 1) / 2;
@@ -86,17 +89,64 @@ void render(int sock) {
         recv(sock, &hitler, sizeof(char), 0);
     }
 
-    char president = 11;
-    char chanselor = 11;
 
-    drawh(names, facists, index, hitler, president, chanselor, main_screen);
+    for (;;) {
+        drawh(names, facists, lobby_size, hitler, president, chanselor, main_screen);
+        if (index == chanselor) {
+            move(2, 0);
+            printw("Select a chanselor from valid candidates:\n");
+            refresh();
+            char ppres, pchance;
+            int valid = (1<<11) - 1;
 
+            recv(sock, &pchance, sizeof(char), 0);
+            recv(sock, &ppres, sizeof(char), 0);
 
-    //    for (;;) {
-    //
-    //        refresh();
-    //    }
-    sleep(5);
+            valid &= ~(1<<pchance);
+            valid &= ~(1<<ppres);
+            valid &= ~(1<<index);
+            
+            int j = 1;
+            int map [10];
+            for (int i = 0; i < lobby_size; i++) {
+                if ((1<<i) & valid) {
+                    printw("%d: %s\n", j, names+((j-1)*(NAME_LENGHT+1)*sizeof(char)));
+                    j++;
+                    map[j-1] = i;
+                }
+            }
+
+            char candidate[2] = {'\0', '\0'};
+            for (;;) {
+                printw("Elect candidate number: ");
+                refresh();
+                getnstr(candidate, 2);
+                char icandidate = atoi(candidate);
+                if (icandidate < 1 || icandidate >= j) {
+                    move(j+1, 0);
+                    continue;
+                }
+
+                icandidate = map[icandidate-1];
+                send(sock, &icandidate, sizeof(char), 0);
+                break;
+            }
+        } else {
+            move(2, 0);
+            printw("Waiting for a candidate to be nominated\n");
+            refresh();
+        }
+
+        char candidate = 0;
+        recv(sock, &candidate, sizeof(char), 0);
+        drawh(names, facists, lobby_size, hitler, president, chanselor, main_screen);
+        printw("Candidate = %s\n", names+(candidate*(NAME_LENGHT+1)*sizeof(char)));
+        refresh();
+
+        sleep(50);
+        break;
+    }
+
     free(names);
     free(name);
     endwin();

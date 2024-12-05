@@ -17,6 +17,7 @@ struct GameState {
     char facist[4];
     char fpolicy;
     char lpolicy;
+    char etracker;
     char president;
     char chancelor;
     char ppresident;
@@ -42,6 +43,7 @@ uint32_t populatedeck(int decksize, int fpolicies) {
 
 void loop(int *clients, int lobby_size) {
     struct GameState state;
+    state.etracker = 0;
     state.ddeck = 0;
     state.dfullness = 17;
     state.pdeck = populatedeck(state.dfullness, 11);
@@ -90,16 +92,36 @@ void loop(int *clients, int lobby_size) {
     state.ppresident = 11;
     state.pchancelor = 11;
 
-    send(players[state.president], &state.pchancelor, sizeof(char), 0);
-    send(players[state.president], &state.ppresident, sizeof(char), 0);
-
     for (;;) {
+        send(players[state.president], &state.pchancelor, sizeof(char), 0);
+        send(players[state.president], &state.ppresident, sizeof(char), 0);
         recv(players[state.president], &state.chancelor, sizeof(char), 0);
 
         for(int i = 0; i < lobby_size; i++) {
             send(players[i], &state.chancelor, sizeof(char), 0);
         }
+        char ja;
+        for(int i = 0; i < lobby_size; i++) {
+            char tmp;
+            recv(players[i], &state.chancelor, sizeof(char), 0);
+            if (tmp)
+                ja++;
+        }
+        if (ja <= lobby_size/2) {
+            for(int i = 0; i < lobby_size; i++) {
+                char tmp = 0;
+                send(players[i], &tmp, sizeof(char), 0);
+            }
+            state.etracker += 1;
 
-        break;
+        } else {
+            for(int i = 0; i < lobby_size; i++) {
+                char tmp = 1;
+                send(players[i], &tmp, sizeof(char), 0);
+            }
+        }
+
+        state.president += 1;
+        state.president %= lobby_size;
     }
 }

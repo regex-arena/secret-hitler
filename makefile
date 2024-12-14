@@ -4,7 +4,7 @@ CC=gcc
 
 SERVER_LINK=
 
-CLIENT_LINK=-lncurses
+CLIENT_LINK=-lncurses -lmenu
 
 server: server/main.c server/game.h server/game.c
 	$(CC) $(SERVER_LINK) -o bin/server server/main.c

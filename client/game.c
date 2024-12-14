@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 #include <curses.h>
+#include <menu.h>
+#include <menu.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,6 +42,8 @@ void render(int sock) {
     echo();
     getnstr(name, NAME_LENGHT);
     send(sock, name, sizeof(char)*(NAME_LENGHT+1), 0);
+
+    char *candidates[9];
 
     erase();
     noecho();
@@ -89,6 +93,12 @@ void render(int sock) {
         recv(sock, &hitler, sizeof(char), 0);
     }
 
+    ITEM **voteitms = (ITEM **)calloc(3, sizeof(ITEM *));
+    voteitms[0] = new_item("Ja", "Ja");
+    voteitms[1] = new_item("Nein", "Nein");
+    voteitms[3] = (ITEM *)NULL;
+    MENU *vote = new_menu(voteitms);
+    menu_opts_off(vote, O_SHOWDESC);
     for (;;) {
         drawh(names, facists, lobby_size, hitler, president, chanselor, main_screen);
         if (index == president) {
@@ -98,40 +108,55 @@ void render(int sock) {
             char ppres, pchance;
             int valid = (1<<11) - 1;
 
+            printw("before pchance\n");
+            refresh();
             recv(sock, &pchance, sizeof(char), 0);
+            printw("before ppres\n");
+            refresh();
             recv(sock, &ppres, sizeof(char), 0);
+            printw("after ppres\n");
+            refresh();
+            exit(1);
 
             valid &= ~(1<<pchance);
             valid &= ~(1<<ppres);
             valid &= ~(1<<index);
-            printw("%b\n", valid);
-            printw("%b\n", ((1<<index) & valid));
-            
-            int j = 1;
+
+            ITEM **candidates = (ITEM **)calloc(lobby_size, sizeof(ITEM *));
+
+            int j = 0;
             int map [10];
             for (int i = 0; i < lobby_size; i++) {
                 if ((1<<i) & valid) {
-                    printw("%d: %s\n", j, names+((i)*(NAME_LENGHT+1)*sizeof(char)));
+                    candidates[j] = new_item(names+((i)*(NAME_LENGHT+1)*sizeof(char)),
+                                             names+((i)*(NAME_LENGHT+1)*sizeof(char)));
+                    map[j] = i;
                     j++;
-                    map[j-1] = i;
+                }
+            }
+            candidates[j] = (ITEM *)NULL;
+            WINDOW *selwin = newwin(10, 15, 2, 0);
+            MENU *selcandidate = new_menu(candidates);
+            set_menu_win(selcandidate, selwin);
+            set_menu_opts(selcandidate, O_ONEVALUE | O_SELECTABLE);
+            menu_opts_off(selcandidate, O_SHOWDESC);
+            post_menu(selcandidate);
+            refresh();
+            int c;
+            while ((c = getch()) != KEY_ENTER) {
+                switch(c) {
+                    case KEY_UP:
+                        menu_driver(selcandidate, REQ_PREV_ITEM);
+                    break;
+                    case KEY_DOWN:
+                        menu_driver(selcandidate, REQ_NEXT_ITEM);
+                    break;
                 }
             }
 
-            char candidate[2] = {'\0', '\0'};
-            echo();
-            for (;;) {
-                printw("Elect candidate number: ");
-                refresh();
-                getnstr(candidate, 1);
-                char icandidate = atoi(candidate);
-                if (icandidate < 1 || icandidate >= j) {
-                    move(j+2, 0);
-                    continue;
-                }
-
-                icandidate = map[icandidate-1];
-                send(sock, &icandidate, sizeof(char), 0);
-                break;
+            send(sock, &map[item_index(current_item(selcandidate))], sizeof(int), 0);
+            for (int i = 0; i < lobby_size; i++) {
+                free_item(candidates[i]);
             }
             noecho();
         } else {
@@ -147,10 +172,20 @@ void render(int sock) {
         printw("Candidate = %s\n", names+(candidate*(NAME_LENGHT+1)*sizeof(char)));
         refresh();
 
-        echo();
-        noecho();
+        post_menu(vote);
+        refresh();
+        int c;
+        while ((c = getch()) != KEY_ENTER) {
+            switch (c) {
+                case KEY_UP:
+                    menu_driver(vote, REQ_PREV_ITEM);
+                break;
+                case KEY_DOWN:
+                    menu_driver(vote, REQ_PREV_ITEM);
+                break;
+            }
+        }
 
-        sleep(50);
         break;
     }
 

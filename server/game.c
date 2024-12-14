@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 // Connection
+#include <stdio.h>
 #include <sys/socket.h>
 
 #include <stdint.h>
@@ -94,7 +95,9 @@ void loop(int *clients, int lobby_size) {
 
     for (;;) {
         send(players[state.president], &state.pchancelor, sizeof(char), 0);
+        printf("Previous chancelor = %d\n", state.pchancelor);
         send(players[state.president], &state.ppresident, sizeof(char), 0);
+        printf("Previous president = %d\n", state.ppresident);
         recv(players[state.president], &state.chancelor, sizeof(char), 0);
 
         for(int i = 0; i < lobby_size; i++) {
